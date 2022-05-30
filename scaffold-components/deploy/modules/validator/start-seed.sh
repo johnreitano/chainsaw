@@ -11,6 +11,7 @@ elif [[ "${NODE_INDEX}" = "1" ]]; then
 else
     MONIKER="green"
 fi
+echo MONIKER=$MONIKER
 
 cd ~/newchain
 # nohup ignite chain serve --verbose >newchain.out 2>&1 </dev/null &

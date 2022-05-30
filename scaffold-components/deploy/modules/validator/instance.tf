@@ -34,7 +34,7 @@ locals {
   validator_ips_str = join(",", [for node in aws_eip.validator : node.public_ip])
 }
 
-resource "null_resource" "setup_validator_and_generate_gentx" {
+resource "null_resource" "build_client" {
   depends_on = [aws_eip.validator[0], aws_eip.validator[1], aws_eip.validator[2], aws_security_group.validator]
   count      = var.num_instances
 
@@ -51,13 +51,31 @@ resource "null_resource" "setup_validator_and_generate_gentx" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo setting up and generating gentx on validator node",
+      "echo building client on validator node...",
       "pkill newchaind",
       "rm -rf ~/newchain",
       "mkdir ~/newchain",
       "cd ~/newchain",
       "tar -xzf /tmp/newchain.tar.gz",
-      "deploy/modules/validator/build-client.sh",
+      "deploy/modules/validator/build-client.sh"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.ssh_private_key_path)
+      host        = aws_eip.validator[count.index].public_ip
+    }
+  }
+}
+
+resource "null_resource" "configure_validator_and_generate_gentx" {
+  depends_on = [null_resource.build_client[0], null_resource.build_client[1], null_resource.build_client[2], aws_security_group.validator]
+  count      = var.num_instances
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo configuring validator and generating gentx...",
+      "cd ~/newchain",
       "deploy/modules/validator/configure-validator.sh ${count.index} '${local.validator_ips_str}'",
       "deploy/modules/validator/generate-gentx.sh ${count.index}",
     ]
@@ -83,7 +101,7 @@ resource "null_resource" "setup_validator_and_generate_gentx" {
 }
 
 resource "null_resource" "generate_genesis_file" {
-  depends_on = [null_resource.setup_validator_and_generate_gentx[0], null_resource.setup_validator_and_generate_gentx[1], null_resource.setup_validator_and_generate_gentx[2]]
+  depends_on = [null_resource.configure_validator_and_generate_gentx[0], null_resource.configure_validator_and_generate_gentx[1], null_resource.configure_validator_and_generate_gentx[2]]
   count      = var.num_instances == 0 ? 0 : 1
 
   provisioner "remote-exec" {
@@ -110,7 +128,7 @@ resource "null_resource" "generate_genesis_file" {
 }
 
 
-resource "null_resource" "start_validator" {
+resource "null_resource" "copy_genesis_file" {
   depends_on = [null_resource.generate_genesis_file[0]]
   count      = var.num_instances
 
@@ -122,6 +140,11 @@ resource "null_resource" "start_validator" {
       fi
     EOF
   }
+}
+
+resource "null_resource" "start_validator" {
+  depends_on = [null_resource.copy_genesis_file[0], null_resource.copy_genesis_file[1], null_resource.copy_genesis_file[2]]
+  count      = var.num_instances
 
   provisioner "remote-exec" {
     inline = [
