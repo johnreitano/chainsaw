@@ -32,7 +32,6 @@ done
 rm -rf ~/.newchain
 build/newchaind init $MONIKER --chain-id newchain-test-1
 cp deploy/node_key_seed_${NODE_INDEX}.json ~/.newchain/config/node_key.json
-cp /tmp/genesis.json ~/.newchain/config/genesis.json
 
 dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
 dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"

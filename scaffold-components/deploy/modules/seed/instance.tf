@@ -30,6 +30,7 @@ resource "aws_eip" "seed" {
 }
 
 locals {
+  depends_on        = [var.validator_ips[0], var.validator_ips[1], var.validator_ips[2], aws_eip.seed[0], aws_eip.seed[1], aws_eip.validator[2]]
   seed_ips_str      = join(",", [for node in aws_eip.seed : node.public_ip])
   validator_ips_str = join(",", var.validator_ips)
 }
@@ -40,10 +41,16 @@ resource "null_resource" "build_client" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      rm -rf /tmp/newchain/seed/code
-      mkdir -p /tmp/newchain/seed/code
-      cd ..
-      git ls-files | tar -czf /tmp/newchain/seed/code/newchain.tar.gz -T -
+      if [[ "${count.index}" = "0" ]]; then
+        rm -rf /tmp/newchain/seed/code
+        mkdir -p /tmp/newchain/seed/code
+        cd ..
+        git ls-files | tar -czf /tmp/newchain/seed/code/newchain.tar.gz -T -
+      else
+        # wait for newchain.tar.gz to be available
+        until [ -f /tmp/newchain/seed/code/newchain.tar.gz ]; do sleep 1; echo -n "."; done; echo
+      fi      
+      sleep 20
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/seed/code/newchain.tar.gz ubuntu@${aws_eip.seed[count.index].public_ip}:/tmp/newchain.tar.gz
     EOF
   }
@@ -71,21 +78,50 @@ resource "null_resource" "configure_seed" {
   depends_on = [null_resource.build_client[0], null_resource.build_client[1], null_resource.build_client[2]]
   count      = var.num_instances
 
-  # copy genesis file to seed node
-  provisioner "local-exec" {
-    command = <<-EOF
-      rm -rf /tmp/newchain/seed/genesis
-      mkdir -p /tmp/newchain/seed/genesis
-      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json /tmp/newchain/seed/genesis/genesis.json
-      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/seed/genesis/genesis.json ubuntu@${var.validator_ips[count.index]}:/tmp/genesis.json
-    EOF
-  }
-
   provisioner "remote-exec" {
     inline = [
       "echo configuring seed node",
       "pkill newchaind",
+      "cd ~/newchain",
       "deploy/modules/seed/configure-seed.sh ${count.index} '${local.seed_ips_str}' '${local.validator_ips_str}'",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.ssh_private_key_path)
+      host        = aws_eip.seed[count.index].public_ip
+    }
+  }
+}
+
+resource "null_resource" "obtain_genesis_file" {
+  depends_on = [null_resource.configure_seed[0], null_resource.configure_seed[1], null_resource.configure_seed[2]]
+  count      = var.num_instances
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      if [[ "${count.index}" = "0" ]]; then
+        # download genesis file from first validator to temporary file
+        rm -rf /tmp/newchain/seed/genesis
+        mkdir -p /tmp/newchain/seed/genesis
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json /tmp/newchain/seed/genesis/genesis.json
+      fi
+      # upload genesis file from temporary file to seed node
+      until [ -f /tmp/newchain/seed/genesis/genesis.json ]; do sleep 1; echo -n "."; done; echo # wait for genesis file to be available
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/seed/genesis/genesis.json ubuntu@${aws_eip.seed[count.index].public_ip}:.newchain/config/genesis.json
+    EOF
+  }
+}
+
+resource "null_resource" "start_seed" {
+  depends_on = [null_resource.obtain_genesis_file[0], null_resource.obtain_genesis_file[1], null_resource.obtain_genesis_file[2]]
+  count      = var.num_instances
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo starting seed node",
+      "cd ~/newchain",
+      "deploy/modules/seed/start-seed.sh ${count.index}",
     ]
     connection {
       type        = "ssh"
