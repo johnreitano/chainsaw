@@ -3,8 +3,7 @@
 ## Install dependencies
 
 ```
-brew install jq
-brew install terraform
+brew install jq terraform awscli
 ```
 
 ## Generate and deploy a chain

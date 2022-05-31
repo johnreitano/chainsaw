@@ -52,7 +52,7 @@ module "explorer" {
 #       rm -rf /tmp/newchain/code
 #       mkdir -p /tmp/newchain/code
 #       cd ..
-#       git ls-files | tar -czf /tmp/newchain/code/newchain.tar.gz -T -
+#       (git ls-files; git ls-files --others | grep -v '^\(deploy/\.terraform\|deploy/terraform\|\.vscode\)') | tar -czf /tmp/newchain/code/newchain.tar.gz -T -
 #     EOF
 #   }
 # }
