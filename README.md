@@ -11,7 +11,8 @@ brew install jq terraform awscli
 #### Step 1: Generate chain
 
 ```
-./chainsaw.sh my-github-org my-awesome-chain
+cd parent-directory-of-my-new-chain
+path/to/this/repo/chainsaw.sh my-github-org my-awesome-chain
 cd my-awesome-chain
 ```
 
