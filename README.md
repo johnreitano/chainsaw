@@ -9,14 +9,14 @@ brew install terraform
 
 ## Generate and deploy a chain
 
-#### Step 1: generate chain
+#### Step 1: Generate chain
 
 ```
 ./chainsaw.sh my-github-org my-awesome-chain
 cd my-awesome-chain
 ```
 
-#### Step 2: deploy
+#### Step 2: Deploy testnet
 
 From your project root dir:
 
