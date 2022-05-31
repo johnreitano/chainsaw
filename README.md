@@ -1,15 +1,24 @@
-# deployment
+# ChainSaw: generates a new Cosmos-sdk chain and deploys it to a testnet
 
-## Step 1: Install dependencies
+## Install dependencies
 
 ```
 brew install jq
 brew install terraform
 ```
 
-## Step 2: Deploy
+## Generate and deploy a chain
 
-From the project root dir:
+#### Step 1: generate chain
+
+```
+./chainsaw.sh my-github-org my-awesome-chain
+cd my-awesome-chain
+```
+
+#### Step 2: deploy
+
+From your project root dir:
 
 ```
 terraform -chdir=deploy apply

@@ -9,7 +9,7 @@ GITHUB_ORG=$1
 CHAIN_NAME=$2
 
 if [[ "$GITHUB_ORG" = "" || "$CHAIN_NAME" = "" ]]; then
-  echo "Usage: ./gen.sh <github-org-name> <chain-name>"
+  echo "Usage: chainsaw <github-org-name> <chain-name>"
   exit 1
 fi
 trash -rf ~/.$CHAIN_NAME ~/.ignite/local-chains/$CHAIN_NAME
@@ -23,7 +23,5 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
 EOF
-cd deploy
-terraform init
-(cd .. && git add .)
-terraform apply -auto-approve
+terraform chdir=deploy init
+git add .

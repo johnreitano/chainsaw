@@ -35,3 +35,4 @@ cp deploy/node_key_seed_${NODE_INDEX}.json ~/.newchain/config/node_key.json
 
 dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
 dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
+dasel put bool -f ~/.newchain/config/app.toml -p toml ".api.enable" true
