@@ -50,7 +50,8 @@ resource "null_resource" "build_client" {
         # wait for newchain.tar.gz to be available
         sleep 20
         until [ -f /tmp/newchain/validator/code/newchain.tar.gz ]; do sleep 1; echo -n "."; done; echo
-      fi      
+      fi
+      sleep 20
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/validator/code/newchain.tar.gz ubuntu@${aws_eip.validator[count.index].public_ip}:/tmp/newchain.tar.gz
     EOF
   }
