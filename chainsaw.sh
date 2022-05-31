@@ -23,5 +23,5 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
 EOF
-terraform chdir=deploy init
+terraform -chdir=deploy init
 git add .
