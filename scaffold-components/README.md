@@ -1,66 +1,65 @@
-# deployment
+# newchain
 
-## Step 1: Install dependencies
+**newchain** is a blockchain built using Cosmos SDK and Tendermint and created with [chainsaw](https://github.com/johnreitano/chainsaw)
+and the [Ignite/Tendermint Toolchain](https://ignite.com/cli).
 
-```
-brew install jq terraform awscli
-```
+## Deploying a testnet
 
-## Step 2: Deploy
+See [Deploying a testnet](./deploy/README.md).
 
-From the project root dir:
+## Learn More
 
-```
-terraform -chdir=deploy apply
-```
+Questions? Please send them to [me](https://github.com/johnreitano).
 
-#### Step 3: Behold your testnet
-
-See your api:
+<!-- ## Get started
 
 ```
-open `deploy/show-api.sh validator 0`
+ignite chain serve
 ```
 
-See your servers in AWS:
+`serve` command installs dependencies, builds, initializes, and starts your blockchain in development.
+
+### Configure
+
+Your blockchain in development can be configured with `config.yml`. To learn more, see the [Ignite CLI docs](https://docs.ignite.com).
+
+### Web Frontend
+
+Ignite CLI has scaffolded a Vue.js-based web app in the `vue` directory. Run the following commands to install dependencies and start the app:
 
 ```
-open https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#Instances:
+cd vue
+npm install
+npm run serve
 ```
 
-See your ip addresses:
+The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For details, see the [monorepo for Ignite front-end development](https://github.com/ignite-hq/web).
+
+## Release
+
+To release a new version of your blockchain, create and push a new tag with `v` prefix. A new draft release with the configured targets will be created.
 
 ```
-terraform -chdir=deploy output
-# => seed_ips = [
-#   "44.228.170.68",
-# ]
-# validator_ips = [
-#   "35.165.126.194",
-#   "52.43.111.204",
-#   "54.200.98.222",
-#]
+git tag v0.1
+git push origin v0.1
 ```
 
-Use some nifty commands in your scripts:
+After a draft release is created, make your final changes from the release page and publish it.
+
+### Install
+
+To install the latest version of your blockchain node's binary, execute the following command on your machine:
 
 ```
-deploy/show-ip.sh seed 0
-# => 44.228.170.68
-deploy/show-ip.sh validator 0
-# => 35.165.126.194
-deploy/show-api.sh validator 0
-# => http://35.165.126.194:1317
-deploy/ssh.sh validator 0
-# => ubuntu@ip-10-0-2-45:~$
-deploy/ssh validator 0 date
-# => Tue May 31 02:23:06 UTC 2022
+curl https://get.ignite.com/johnreitano/foo@latest! | sudo bash
 ```
 
-## Destroying your testnet (to save money!)
+`johnreitano/foo` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
 
-From your project root dir:
+## Learn more
 
-```
-terraform chdir=deploy destroy
-```
+- [Ignite CLI](https://ignite.com/cli)
+- [Tutorials](https://docs.ignite.com/guide)
+- [Ignite CLI docs](https://docs.ignite.com)
+- [Cosmos SDK docs](https://docs.cosmos.network)
+- [Developer Chat](https://discord.gg/ignite) -->
