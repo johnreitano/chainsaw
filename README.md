@@ -1,4 +1,4 @@
-# chainsaw: generates a new Cosmos-sdk chain and deploys it to a testnet
+# chainsaw: generate a new cosmos-sdk-based blockchain and deploy it to a testnet
 
 ## Install dependencies
 
@@ -74,3 +74,8 @@ From your project root dir:
 ```
 terraform chdir=deploy destroy
 ```
+
+## Possible Enhancements
+
+- Other cloud providers (Linode, Digital Ocean, etc.)
+- Deploy to a mainnet with anti-DDOS and other security-related features
