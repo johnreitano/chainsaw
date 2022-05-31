@@ -14,8 +14,16 @@ variable "igw_id" {
   description = "The id of the internet gatewy used by the project"
 }
 
-variable "subnet_cidr" {
-  description = "The cidr for the subnet"
+variable "fe_subnet_cidr" {
+  description = "CIDR block for explorer fe subnet"
+}
+
+variable "be_0_subnet_cidr" {
+  description = "CIDR block for explorer be_0 subnet"
+}
+
+variable "be_1_subnet_cidr" {
+  description = "CIDR block for explorer be_1 subnet"
 }
 
 variable "ssh_private_key_path" {

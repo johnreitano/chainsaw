@@ -48,9 +48,19 @@ variable "validator_subnet_cidr" {
   default     = "10.0.2.0/24"
 }
 
-variable "explorer_subnet_cidr" {
-  description = "CIDR block for db subnet"
+variable "explorer_fe_subnet_cidr" {
+  description = "CIDR block for explorer fe subnet"
   default     = "10.0.3.0/24"
+}
+
+variable "explorer_be_0_subnet_cidr" {
+  description = "CIDR block for explorer be_0 subnet"
+  default     = "10.0.4.0/24"
+}
+
+variable "explorer_be_1_subnet_cidr" {
+  description = "CIDR block for explorer be_1 subnet"
+  default     = "10.0.5.0/24"
 }
 
 variable "num_validator_instances" {

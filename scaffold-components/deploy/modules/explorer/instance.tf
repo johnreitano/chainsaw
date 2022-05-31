@@ -1,9 +1,9 @@
 resource "aws_instance" "explorer" {
   ami                         = var.ami
-  instance_type               = "t2.medium"
-  subnet_id                   = aws_subnet.explorer.id
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.explorer_fe.id
   key_name                    = "newchain-key"
-  vpc_security_group_ids      = [aws_security_group.explorer.id]
+  vpc_security_group_ids      = [aws_security_group.explorer_fe.id]
   associate_public_ip_address = false
 
   lifecycle {
