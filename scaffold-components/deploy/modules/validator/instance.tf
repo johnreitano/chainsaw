@@ -48,9 +48,9 @@ resource "null_resource" "build_client" {
         git ls-files | tar -czf /tmp/newchain/validator/code/newchain.tar.gz -T -
       else
         # wait for newchain.tar.gz to be available
+        sleep 20
         until [ -f /tmp/newchain/validator/code/newchain.tar.gz ]; do sleep 1; echo -n "."; done; echo
       fi      
-      sleep 20
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/validator/code/newchain.tar.gz ubuntu@${aws_eip.validator[count.index].public_ip}:/tmp/newchain.tar.gz
     EOF
   }
@@ -134,8 +134,11 @@ resource "null_resource" "obtain_genesis_file" {
         mkdir -p /tmp/newchain/validator/genesis
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.newchain/config/genesis.json /tmp/newchain/validator/genesis/genesis.json
       else
-        # upload genesis file from temporary file to secondary validator
+        # wait for genesis.json to be available
+        sleep 20
         until [ -f /tmp/newchain/validator/genesis/genesis.json ]; do sleep 1; echo -n "."; done; echo # wait for genesis file to be available
+
+        # upload genesis file from temporary file to secondary validator
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/validator/genesis/genesis.json ubuntu@${aws_eip.validator[count.index].public_ip}:.newchain/config/genesis.json
       fi      
     EOF

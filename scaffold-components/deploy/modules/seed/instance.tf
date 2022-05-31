@@ -30,7 +30,7 @@ resource "aws_eip" "seed" {
 }
 
 locals {
-  depends_on        = [var.validator_ips[0], var.validator_ips[1], var.validator_ips[2], aws_eip.seed[0], aws_eip.seed[1], aws_eip.validator[2]]
+  depends_on        = concat(aws_eip.seed, var.validator_ips)
   seed_ips_str      = join(",", [for node in aws_eip.seed : node.public_ip])
   validator_ips_str = join(",", var.validator_ips)
 }
@@ -48,9 +48,9 @@ resource "null_resource" "build_client" {
         git ls-files | tar -czf /tmp/newchain/seed/code/newchain.tar.gz -T -
       else
         # wait for newchain.tar.gz to be available
+        sleep 20
         until [ -f /tmp/newchain/seed/code/newchain.tar.gz ]; do sleep 1; echo -n "."; done; echo
       fi      
-      sleep 20
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/seed/code/newchain.tar.gz ubuntu@${aws_eip.seed[count.index].public_ip}:/tmp/newchain.tar.gz
     EOF
   }
@@ -105,9 +105,12 @@ resource "null_resource" "obtain_genesis_file" {
         rm -rf /tmp/newchain/seed/genesis
         mkdir -p /tmp/newchain/seed/genesis
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json /tmp/newchain/seed/genesis/genesis.json
+      else
+        # wait for genesis.json to be available
+        sleep 20
+        until [ -f /tmp/newchain/seed/genesis/genesis.json ]; do sleep 1; echo -n "."; done; echo
       fi
       # upload genesis file from temporary file to seed node
-      until [ -f /tmp/newchain/seed/genesis/genesis.json ]; do sleep 1; echo -n "."; done; echo # wait for genesis file to be available
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/seed/genesis/genesis.json ubuntu@${aws_eip.seed[count.index].public_ip}:.newchain/config/genesis.json
     EOF
   }
