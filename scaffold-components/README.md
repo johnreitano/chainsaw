@@ -3,8 +3,7 @@
 ## Step 1: Install dependencies
 
 ```
-brew install jq
-brew install terraform
+brew install jq terraform awscli
 ```
 
 ## Step 2: Deploy
