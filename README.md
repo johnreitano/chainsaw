@@ -1,4 +1,4 @@
-# ChainSaw: generates a new Cosmos-sdk chain and deploys it to a testnet
+# chainsaw: generates a new Cosmos-sdk chain and deploys it to a testnet
 
 ## Install dependencies
 

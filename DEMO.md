@@ -1,4 +1,4 @@
-# ChainSaw: demo
+# chainsaw: demo
 
 ```
 trash -rf ~/.mandelbot ~/.ignite/local-chains/mandelbot
