@@ -1,14 +1,16 @@
-# chainsaw: demo
+# chainsaw: demo script
 
+Run the following commands, one line at a time
 ```
-trash -rf ~/.mandelbot ~/.ignite/local-chains/mandelbot
-
 cd ~/dev/oktryme
 
 ./chainsaw/chainsaw.sh johnreitano mandelbot
 
-cd mandelbot
-code .
+code mandelbot
 
 terraform -chdir=deploy apply
+
+terraform -chdir=deploy destroy
+
+trash -rf ~/.mandelbot ~/.ignite/local-chains/mandelbot
 ```
