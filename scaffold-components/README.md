@@ -1,6 +1,6 @@
 # newchain
 
-**newchain** is a blockchain built using Cosmos SDK and Tendermint and created with [chainsaw](https://github.com/johnreitano/chainsaw)
+**newchain** is a blockchain built using Cosmos SDK and Tendermint. It was created with [chainsaw](https://github.com/johnreitano/chainsaw)
 and the [Ignite/Tendermint Toolchain](https://ignite.com/cli).
 
 ## Deploying a testnet
