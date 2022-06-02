@@ -33,6 +33,10 @@ variable "ssh_public_key_path" {
   type        = string
 }
 
+variable "tls_certificate_email" {
+  description = "email to send to letsencrypt for tls certificates"
+}
+
 variable "vpc_cidr" {
   description = "CIDR block of the vpc"
   default     = "10.0.0.0/16"
@@ -48,28 +52,34 @@ variable "validator_subnet_cidr" {
   default     = "10.0.2.0/24"
 }
 
-variable "explorer_fe_subnet_cidr" {
-  description = "CIDR block for explorer fe subnet"
+variable "explorer_subnet_cidr" {
+  description = "CIDR block for explorer subnet"
   default     = "10.0.3.0/24"
-}
-
-variable "explorer_be_0_subnet_cidr" {
-  description = "CIDR block for explorer be_0 subnet"
-  default     = "10.0.4.0/24"
-}
-
-variable "explorer_be_1_subnet_cidr" {
-  description = "CIDR block for explorer be_1 subnet"
-  default     = "10.0.5.0/24"
 }
 
 variable "num_validator_instances" {
   description = "number of validator instances"
-  default     = 3
+  type        = number
+  default     = 0
 }
 
 variable "num_seed_instances" {
   description = "number of seed instances"
-  default     = 1
+  type        = number
+  default     = 0
 }
 
+variable "create_explorer" {
+  description = "whether to include an explorere node"
+  type        = bool
+  default     = false
+}
+
+variable "domain_prefix" {
+  description = "domain name prefix"
+  default     = "testnet-"
+}
+
+variable "dns_zone_name" {
+  description = "full domain name of dns zone"
+}

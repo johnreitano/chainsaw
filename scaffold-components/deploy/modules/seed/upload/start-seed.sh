@@ -12,8 +12,9 @@ else
     MONIKER="gray"
 fi
 
-cd ~/newchain
 # nohup ignite chain serve --verbose >newchain.out 2>&1 </dev/null &
-nohup build/newchaind start >newchain.out 2>&1 </dev/null &
-sleep 2
-echo "Started seed node ${MONIKER} with NODE_INDEX ${NODE_INDEX} and id $(build/newchaind tendermint show-node-id)"
+echo "About to start seed node ${MONIKER} with NODE_INDEX ${NODE_INDEX} and id $(~/upload/newchaind tendermint show-node-id)"
+pkill newchaind || :
+sleep 1
+~/upload/newchaind start
+sleep 1

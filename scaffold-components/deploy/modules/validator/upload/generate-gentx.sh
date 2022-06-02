@@ -16,7 +16,7 @@ else
 fi
 
 # generate genesis transaction for this validator
-yes | build/newchaind keys delete ${MONIKER}-key --keyring-backend test 2>/dev/null || :
-echo $MNEMONIC | build/newchaind keys add ${MONIKER}-key --keyring-backend test --recover
-build/newchaind add-genesis-account $(build/newchaind keys show ${MONIKER}-key -a --keyring-backend test) 100000000000stake
-build/newchaind gentx ${MONIKER}-key 100000000stake --chain-id newchain-test-1 --moniker=${MONIKER} --keyring-backend test
+yes | ~/upload/newchaind keys delete ${MONIKER}-key --keyring-backend test 2>/dev/null || :
+echo $MNEMONIC | ~/upload/newchaind keys add ${MONIKER}-key --keyring-backend test --recover
+~/upload/newchaind add-genesis-account $(~/upload/newchaind keys show ${MONIKER}-key -a --keyring-backend test) 100000000000stake || :
+~/upload/newchaind gentx ${MONIKER}-key 100000000stake --chain-id newchain-test-1 --moniker=${MONIKER} --keyring-backend test

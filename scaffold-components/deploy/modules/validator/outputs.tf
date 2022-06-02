@@ -1,4 +1,7 @@
 output "ips" {
-  depends_on = [null_resource.start_validator[0], null_resource.start_validator[1], null_resource.start_validator[2]]
-  value      = [for i in range(0, var.num_instances) : aws_eip.validator[i].public_ip]
+  value = [for eip in aws_eip.validator : eip.public_ip]
+}
+
+output "genesis_file_available" {
+  value = length(null_resource.generate_genesis_file) > 0
 }

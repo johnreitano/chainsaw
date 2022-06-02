@@ -77,5 +77,7 @@ terraform chdir=deploy destroy
 
 ## Possible Enhancements
 
-- Other cloud providers (Linode, Digital Ocean, etc.)
+- Restart blockchain node when machine is rebooted
+- Add a blockchain explorer (similar to https://explore.fetch.ai/) (steps: install db, configure db, install hasura, install back-end install front-end)
 - Deploy to a mainnet with anti-DDOS and other security-related features
+- Support other cloud providers (Linode, Digital Ocean, etc.)

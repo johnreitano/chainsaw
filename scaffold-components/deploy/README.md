@@ -6,20 +6,30 @@
 brew install jq terraform awscli
 ```
 
-## Step 2: Deploy
+## Step 2: Generate name servers
 
 From the project root dir:
 
 ```
-terraform -chdir=deploy apply
+terraform -chdir=deploy apply -var="dns_zone_name=mysubdomain.mydomain.com" -var="tls_certificate_email=myemail@example.com"
 ```
 
-#### Step 3: Behold your testnet
+This command will output a list of name servers. At the host for the subdomain (eg, `mysubdomain`), add one NS record for each name server in the output. Wait for the NS records to be deployed (this can take anywhere from 15 minutes to 8 hours).
 
-See your api:
+## Step 3: Deploy your chain
+
+From the project root dir:
 
 ```
-open `deploy/show-api.sh validator 0`
+terraform -chdir=deploy apply -var="dns_zone_name=mysubdomain.mydomain.com" -var="tls_certificate_email=myemail@example.com" -var="num_validator_instances=3" -var="num_seed_instances=1" -var="create_explorer=true"
+```
+
+#### Step 4: Behold your testnet
+
+Wait 2-3 minutes, the visit your new api:
+
+```
+open https://validator-0-api.mysubdomain.mydomain.com
 ```
 
 See your servers in AWS:

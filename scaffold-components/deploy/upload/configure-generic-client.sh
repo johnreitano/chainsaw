@@ -3,7 +3,14 @@
 set -x
 set -e
 
+# # sleep until instance is ready
+# until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
+#     sleep 1
+# done
+
 sudo apt update -y
+sudo snap install core
+sudo snap refresh core
 
 if [[ -z "$(which make)" ]]; then
     sudo apt install -y make
@@ -21,12 +28,13 @@ fi
 if [[ -z "$(which ignite)" ]]; then
     sudo curl https://get.ignite.com/cli! | sudo bash
 fi
+if [[ -z "$(which certbot)" ]]; then
+    sudo snap install --classic certbot
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+fi
 
 # pkill ignite || : # if failed, ignite wasn't running
-pkill newchaind || : # if failed, ignite wasn't running
+pkill newchaind || : # if failed, newchaind wasn't running
 sleep 1
-cd ~/newchain
-# ignite chain build --output build
-make build-newchain-linux
 
 ulimit -n 4096 # set maximum number of open files to 4096
