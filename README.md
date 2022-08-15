@@ -42,9 +42,9 @@ deploy/create-servers.sh 3 # number of desired validators
 
 #### Step 4: Behold your testnet
 
-See your new block explorer: https://testnet2-explorer.my-awesome-chain.foo.com
+See your new block explorer: https://testnet-explorer.my-awesome-chain.foo.com
 
-See your api: https://testnet2-seed-0-api.my-awesome-chain.foo.com
+See your api: https://testnet-seed-0-api.my-awesome-chain.foo.com
 
 See your servers in AWS: https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#Instances
 

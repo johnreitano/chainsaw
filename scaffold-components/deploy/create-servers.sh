@@ -10,4 +10,4 @@ if [[ "$NUM_VALIDATORS" = "" ]]; then
     NUM_VALIDATORS=1
 fi
 
-terraform -chdir=deploy apply -auto-approve -var="num_validator_instances=$NUM_VALIDATORS" -var="num_seed_instances=1" -var="create_explorer=true" -var="domain_prefix=testnet2-" -var-file="dns.tfvars"
+terraform -chdir=deploy apply -auto-approve -var="num_validator_instances=$NUM_VALIDATORS" -var="num_seed_instances=1" -var="create_explorer=true" -var="domain_prefix=testnet-" -var-file="dns.tfvars"

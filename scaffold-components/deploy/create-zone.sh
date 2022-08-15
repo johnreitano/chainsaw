@@ -15,4 +15,4 @@ dns_zone_name = "$DNS_ZONE_NAME"
 tls_certificate_email = "$TLS_CERTIFICATE_EMAIL"
 EOF
 
-terraform -chdir=deploy apply -auto-approve -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var="domain_prefix=testnet2-" -var-file="dns.tfvars"
+terraform -chdir=deploy apply -auto-approve -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var="domain_prefix=testnet-" -var-file="dns.tfvars"
