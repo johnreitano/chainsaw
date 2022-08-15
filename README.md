@@ -79,7 +79,7 @@ From your project root dir:
 deploy/destroy-servers.sh
 ```
 
-## Destroying everying (including your your DNS zone)
+## Destroying everything (including your your DNS zone)
 
 From your project root dir:
 
