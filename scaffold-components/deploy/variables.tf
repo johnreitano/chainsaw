@@ -35,6 +35,7 @@ variable "ssh_public_key_path" {
 
 variable "tls_certificate_email" {
   description = "email to send to letsencrypt for tls certificates"
+  default     = ""
 }
 
 variable "vpc_cidr" {
@@ -82,4 +83,10 @@ variable "domain_prefix" {
 
 variable "dns_zone_name" {
   description = "full domain name of dns zone"
+}
+
+variable "dns_zone_name_allow_destroy" {
+  description = "allow destroying the dns zone name"
+  type        = bool
+  default     = false
 }
