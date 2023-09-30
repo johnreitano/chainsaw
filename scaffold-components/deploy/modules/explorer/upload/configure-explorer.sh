@@ -4,13 +4,23 @@ set -x
 set -e
 
 NODE_INDEX=$1
+DOMAIN_PREFIX=$2
+DNS_ZONE_NAME=$3
 
-curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
-sudo bash /tmp/nodesource_setup.sh
+# install node
+sudo apt-get update -y
+sudo apt-get install -y ca-certificates curl gnupg
+mkdir -p /etc/apt/keyrings
+sudo rm -f /etc/apt/keyrings/nodesource.gpg
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+NODE_MAJOR=16
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
+sudo apt-get update -y && sudo apt-get install nodejs -y
 
+# install yarn
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update && sudo apt-get install -y yarn
+sudo apt-get update -y && sudo apt-get install -y yarn
 
 if [[ ! -d "explorer" ]]; then
     git clone https://github.com/johnreitano/ping-pub-explorer.git explorer
@@ -19,6 +29,9 @@ cd explorer
 NEW_CHAIN_LOWER='new''chain'
 NEW_CHAIN_UPPER='NEW''CHAIN'
 NEW_CHAIN_TITLE='New''chain'
+git clean -dfx
+git reset .
+git checkout .
 git checkout ${NEW_CHAIN_LOWER}-deployment
 git pull
 git grep -l $NEW_CHAIN_LOWER | xargs sed -i -e 's/'$NEW_CHAIN_LOWER'/newchain/g'
@@ -28,7 +41,16 @@ git mv public/logos/${NEW_CHAIN_LOWER}.png public/logos/newchain.png
 git mv public/logos/${NEW_CHAIN_LOWER}stake.png public/logos/newchainstake.png
 git mv src/chains/mainnet/${NEW_CHAIN_LOWER}.json src/chains/mainnet/newchain.json
 git mv src/chains/testnet/${NEW_CHAIN_LOWER}.json src/chains/testnet/newchain.json
-yarn
+if [[ $DOMAIN_PREFIX =~ test ]]; then
+    sed -i -e 's/DOMAIN_PREFIX/'${DOMAIN_PREFIX}'/g' src/chains/testnet/newchain.json
+    sed -i -e 's/DOMAIN_PREFIX//g' src/chains/mainnet/newchain.json
+else
+    sed -i -e 's/DOMAIN_PREFIX//g' src/chains/testnet/newchain.json
+    sed -i -e 's/DOMAIN_PREFIX/'${DOMAIN_PREFIX}'/g' src/chains/mainnet/newchain.json
+fi
+sed -i -e 's/DNS_ZONE/'${DNS_ZONE_NAME}'/g' src/chains/*/newchain.json
+yarn install
+# yarn build
 
 cat >/tmp/explorer.service <<-EOF
 [Unit]

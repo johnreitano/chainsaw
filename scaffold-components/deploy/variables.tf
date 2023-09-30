@@ -78,15 +78,8 @@ variable "create_explorer" {
 
 variable "domain_prefix" {
   description = "domain name prefix"
-  default     = "testnet-"
 }
 
 variable "dns_zone_name" {
   description = "full domain name of dns zone"
-}
-
-variable "dns_zone_name_allow_destroy" {
-  description = "allow destroying the dns zone name"
-  type        = bool
-  default     = false
 }

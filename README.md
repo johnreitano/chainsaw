@@ -4,7 +4,9 @@
 
 1. Install docker desktop: https://docs.docker.com/get-docker/
 
-2. Install build tools: `brew install jq terraform awscli`
+2. Install ignite (tool for scaffolding Cosmos SDK-based chains): `curl https://get.ignite.com/cli! | bash`
+
+3. Install jq, terraform and awscli. On MacOS, do: `brew install jq terraform awscli`. On other platforms, do the equivalent.
 
 ## Generate and deploy a chain
 
@@ -12,24 +14,24 @@
 
 ```
 cd parent-directory-of-my-new-chain
-path/to/this/repo/chainsaw.sh my-github-org my-awesome-chain
-cd my-awesome-chain
+path/to/this/repo/chainsaw.sh my-github-user-name awesomechain
+cd awesomechain
 ```
 
 #### Step 2: Create hosted domain zone
 
-1. Choose a subdomain under your domain name to act as the root of the urls for your new blockchain. Example: If you own foo.com, you could choose "my-awesome-chain.foo.com".
+1. Choose a subdomain under your domain name to act as the root of the urls for your new blockchain. Example: If you own my-domain.com, you could choose subdomain "awesomechain.my-domain.com".
 
-2. Create a DNS zone for this full domain by running the create-zone.sh command: from the project root dir, run:
-
-```
-deploy/create-zone.sh my-awesome-chain.foo.com
-```
-
-3. Visit the DNS manager for your domain (eg, foo.com), and create 4 NS records for your chosen subdomain, one for each of the name servers in the output of create-zone.sh above. NOTE: It could take 1-4 hours for these NS records to propate, which you can check with the following command:
+2. Create a DNS zone for this subdomain by running the create-zone.sh command:
 
 ```
-nslookup -type=ns awesome-chain.foo.com
+deploy/create-zone.sh awesomechain.my-domain.com my-email@my-domain.com
+```
+
+3. MANUAL STEP: Visit the DNS manager for your base domain (eg, my-domain.com), and create 4 NS records for your chosen subdomain, one for each of the name servers in the output of create-zone.sh above. NOTE: It could take 1-4 hours for these NS records to propagate, which you can check with the following command:
+
+```
+nslookup -type=ns awesomechain.my-domain.com
 ```
 
 #### Step 3: Deploy testnet servers
@@ -42,9 +44,9 @@ deploy/create-servers.sh 3 # number of desired validators
 
 #### Step 4: Behold your testnet
 
-See your new block explorer: https://testnet-explorer.my-awesome-chain.foo.com
+See your new block explorer: https://testnet-explorer.awesomechain.my-domain.com
 
-See your api: https://testnet-seed-0-api.my-awesome-chain.foo.com
+See your api: https://testnet-seed-0-api.awesomechain.my-domain.com
 
 See your servers in AWS: https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#Instances
 

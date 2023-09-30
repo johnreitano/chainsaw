@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+# set -x
 set -e
 
 NODE_INDEX=$1
@@ -55,8 +55,6 @@ sudo cp /tmp/newchain.service /etc/systemd/system/newchain.service
 sudo chmod 664 /etc/systemd/system/newchain.service
 sudo systemctl daemon-reload
 
-dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
-dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
-dasel put bool -f ~/.newchain/config/app.toml -p toml ".api.enable" true
-
-sudo DEBIAN_FRONTEND=noninteractive apt install -y nginx
+dasel put -f ~/.newchain/config/config.toml -t string -v "${P2P_EXTERNAL_ADDRESS}" .p2p.external_address
+dasel put -f ~/.newchain/config/config.toml -t string -v "${P2P_PERSISTENT_PEERS}" .p2p.persistent_peers
+dasel put -f ~/.newchain/config/app.toml -t bool -v true .api.enable

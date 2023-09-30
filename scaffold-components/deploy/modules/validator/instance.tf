@@ -57,6 +57,7 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "rm -rf upload",
     ]
     connection {
@@ -91,6 +92,7 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo configuring validator node...",
       "chmod +x ~/upload/*.sh ~/upload/newchaind",
       "sudo systemctl stop newchain.service || :",
@@ -135,6 +137,7 @@ resource "null_resource" "generate_genesis_file" {
   // generate genesis file on primary validator
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo generating genesis file on primary validator node",
       "upload/generate-genesis-file.sh",
     ]
@@ -171,6 +174,7 @@ resource "null_resource" "start_validator" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo starting validator node ${count.index} via systemctl...",
       "sudo systemctl restart newchain.service",
       "sleep 1",

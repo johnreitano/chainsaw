@@ -67,6 +67,7 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "rm -rf upload",
     ]
     connection {
@@ -101,6 +102,7 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo configuring seed node...",
       "chmod +x upload/*.sh ./upload/newchaind",
       "~/upload/configure-generic-client.sh",
@@ -129,6 +131,7 @@ resource "null_resource" "start_seed" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo starting seed node...",
       "sudo systemctl enable newchain.service",
       "sudo systemctl start newchain.service",

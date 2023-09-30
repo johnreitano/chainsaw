@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+# set -x
 set -e
 
 # # sleep until instance is ready
@@ -9,9 +9,12 @@ set -e
 # done
 
 sudo apt update -y
-sudo snap install core
-sudo snap refresh core
 
+if [[ -z "$(which snap)" ]]; then
+    sudo apt install -y snapd
+    sudo snap install core
+    sudo snap refresh core
+fi
 if [[ -z "$(which make)" ]]; then
     sudo apt install -y make
 fi

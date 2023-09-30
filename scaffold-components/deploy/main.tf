@@ -1,13 +1,12 @@
 resource "aws_route53_zone" "default" {
-  name            = var.dns_zone_name
-  prevent_destroy = !var.dns_zone_name_allow_destroy
+  name = var.dns_zone_name
 }
 
 resource "null_resource" "build_linux_executable" {
   count = var.num_validator_instances > 0 || var.num_seed_instances > 0 ? 1 : 0
 
   provisioner "local-exec" {
-    command = "cd .. && DOCKER_SCAN_SUGGEST=false docker build -f deploy/Dockerfile  --platform=linux/amd64 -o deploy/upload ."
+    command = "cd .. && rm -f deploy/upload/newchaind && DOCKER_SCAN_SUGGEST=false docker build -f deploy/Dockerfile --platform=linux/amd64 -o deploy/upload ."
   }
 
   triggers = {
@@ -26,7 +25,7 @@ module "validator" {
   vpc_id                = aws_vpc.vpc.id
   igw_id                = aws_internet_gateway.igw.id
   subnet_cidr           = var.validator_subnet_cidr
-  ami                   = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
+  ami                   = data.aws_ami.latest-ubuntu.id
   dns_zone_id           = aws_route53_zone.default.zone_id
   dns_zone_name         = var.dns_zone_name
   domain_prefix         = var.domain_prefix
@@ -45,7 +44,7 @@ module "seed" {
   subnet_cidr            = var.seed_subnet_cidr
   validator_ips          = module.validator.ips
   genesis_file_available = module.validator.genesis_file_available
-  ami                    = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
+  ami                    = data.aws_ami.latest-ubuntu.id
   dns_zone_id            = aws_route53_zone.default.zone_id
   dns_zone_name          = var.dns_zone_name
   domain_prefix          = var.domain_prefix
@@ -61,7 +60,7 @@ module "explorer" {
   vpc_id                = aws_vpc.vpc.id
   igw_id                = aws_internet_gateway.igw.id
   subnet_cidr           = var.explorer_subnet_cidr
-  ami                   = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
+  ami                   = data.aws_ami.latest-ubuntu.id
   create_explorer       = var.create_explorer
   dns_zone_id           = aws_route53_zone.default.zone_id
   dns_zone_name         = var.dns_zone_name

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+# set -x
 set -e
 
 THIS_NODE_ID=$(~/upload/newchaind tendermint show-node-id)

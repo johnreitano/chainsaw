@@ -46,6 +46,7 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "rm -rf upload",
     ]
     connection {
@@ -80,11 +81,12 @@ resource "null_resource" "configure_client" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo configuring explorer node...",
       "chmod +x ~/upload/*.sh",
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}explorer.${var.dns_zone_name}",
-      "~/upload/configure-explorer.sh ${count.index} ${var.domain_prefix}explorer.${var.dns_zone_name}"
+      "~/upload/configure-explorer.sh ${count.index} ${var.domain_prefix} ${var.dns_zone_name}"
     ]
     connection {
       type        = "ssh"
@@ -106,6 +108,7 @@ resource "null_resource" "start_explorer" {
 
   provisioner "remote-exec" {
     inline = [
+      "set -o errexit",
       "echo starting block explorer...",
       "sudo systemctl enable explorer.service",
       "sudo systemctl start explorer.service",

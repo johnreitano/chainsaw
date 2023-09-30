@@ -5,18 +5,18 @@ set -e # exit on failure
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 
-GITHUB_ORG=$1
+GITHUB_USER=$1
 CHAIN_NAME=$2
 CHAIN_NAME=$(echo $CHAIN_NAME | tr '[:upper:]' '[:lower:]')
 CHAIN_NAME_UPPER=$(echo $CHAIN_NAME | tr '[:lower:]' '[:upper:]')
 CHAIN_NAME_TITLE=$(echo ${CHAIN_NAME:0:1} | tr '[:lower:]' '[:upper:]')${CHAIN_NAME:1}
 
-if [[ "$GITHUB_ORG" = "" || "$CHAIN_NAME" = "" ]]; then
-  echo "Usage: chainsaw <github-org-name> <chain-name>"
+if [[ "$GITHUB_USER" = "" || "$CHAIN_NAME" = "" ]]; then
+  echo "Usage: chainsaw <github-user> <chain-name>"
   exit 1
 fi
 trash -rf ~/.$CHAIN_NAME ~/.ignite/local-chains/$CHAIN_NAME
-ignite scaffold chain github.com/${GITHUB_ORG}/$CHAIN_NAME --address-prefix $CHAIN_NAME
+ignite scaffold chain github.com/${GITHUB_USER}/$CHAIN_NAME --address-prefix $CHAIN_NAME
 cd $CHAIN_NAME
 cp -r ${SCRIPT_DIR}/scaffold-components/* .
 
