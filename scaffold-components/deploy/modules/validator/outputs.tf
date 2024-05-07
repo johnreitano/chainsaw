@@ -3,5 +3,5 @@ output "ips" {
 }
 
 output "genesis_file_available" {
-  value = length(null_resource.generate_genesis_file) > 0
+  value = length(null_resource.generate-and-install-genesis-file) > 0
 }

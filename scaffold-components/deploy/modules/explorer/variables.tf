@@ -38,9 +38,9 @@ variable "dns_zone_id" {
   description = "id of route53 dns zone"
 }
 
-variable "domain_prefix" {
-  description = "domain name prefix"
-}
+# variable "domain_prefix" {
+#   description = "domain name prefix"
+# }
 
 variable "dns_zone_name" {
   description = "fully qualified domain of route53 dns zone"

@@ -1,6 +1,5 @@
 resource "aws_route53_zone" "default" {
-  name            = var.dns_zone_name
-  prevent_destroy = !var.dns_zone_name_allow_destroy
+  name            = "${var.env}.${var.dns_zone_parent}"
 }
 
 resource "null_resource" "build_linux_executable" {
@@ -28,8 +27,7 @@ module "validator" {
   subnet_cidr           = var.validator_subnet_cidr
   ami                   = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
   dns_zone_id           = aws_route53_zone.default.zone_id
-  dns_zone_name         = var.dns_zone_name
-  domain_prefix         = var.domain_prefix
+  dns_zone_name         = aws_route53_zone.default.name
   num_instances         = var.num_validator_instances
 }
 
@@ -47,8 +45,7 @@ module "seed" {
   genesis_file_available = module.validator.genesis_file_available
   ami                    = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
   dns_zone_id            = aws_route53_zone.default.zone_id
-  dns_zone_name          = var.dns_zone_name
-  domain_prefix          = var.domain_prefix
+  dns_zone_name          = aws_route53_zone.default.name
   num_instances          = var.num_seed_instances
 }
 
@@ -64,7 +61,6 @@ module "explorer" {
   ami                   = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
   create_explorer       = var.create_explorer
   dns_zone_id           = aws_route53_zone.default.zone_id
-  dns_zone_name         = var.dns_zone_name
-  domain_prefix         = var.domain_prefix
+  dns_zone_name         = aws_route53_zone.default.name
 }
 

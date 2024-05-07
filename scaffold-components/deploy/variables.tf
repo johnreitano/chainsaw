@@ -76,17 +76,6 @@ variable "create_explorer" {
   default     = false
 }
 
-variable "domain_prefix" {
-  description = "domain name prefix"
-  default     = "testnet-"
-}
-
-variable "dns_zone_name" {
-  description = "full domain name of dns zone"
-}
-
-variable "dns_zone_name_allow_destroy" {
-  description = "allow destroying the dns zone name"
-  type        = bool
-  default     = false
+variable "dns_zone_parent" {
+  description = "parent of dns zone for testnet and mainnet servers, eg: mychain.example.com"
 }

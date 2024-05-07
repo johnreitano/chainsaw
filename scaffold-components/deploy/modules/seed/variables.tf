@@ -20,7 +20,6 @@ variable "subnet_cidr" {
 
 variable "ssh_private_key_path" {
   description = "path to private SSH key file"
-  default     = "~/.ssh/id_rsa"
   type        = string
 }
 
@@ -50,9 +49,9 @@ variable "dns_zone_id" {
   description = "id of route53 dns zone"
 }
 
-variable "domain_prefix" {
-  description = "domain name prefix"
-}
+# variable "domain_prefix" {
+#   description = "domain name prefix"
+# }
 
 variable "dns_zone_name" {
   description = "fully qualified domain of route53 dns zone"

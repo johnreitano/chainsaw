@@ -52,9 +52,19 @@ sudo cp /tmp/newchain.service /etc/systemd/system/newchain.service
 sudo chmod 664 /etc/systemd/system/newchain.service
 sudo systemctl daemon-reload
 
-dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
-dasel put string -f ~/.newchain/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
-dasel put string -f ~/.newchain/config/config.toml -p toml ".rpc.tls_cert_file" "/home/ubuntu/cert/fullchain.pem"
-dasel put string -f ~/.newchain/config/config.toml -p toml ".rpc.tls_key_file" "/home/ubuntu/cert/privkey.pem"
-dasel put bool -f ~/.newchain/config/app.toml -p toml ".api.enable" true
-dasel put string -f ~/.newchain/config/app.toml -p toml ".api.address" "tcp://localhost:1317"
+dasel put -f ~/.newchain/config/config.toml -v "${P2P_EXTERNAL_ADDRESS}" ".p2p.external_address"
+dasel put -f ~/.newchain/config/config.toml -v "${P2P_PERSISTENT_PEERS}" ".p2p.persistent_peers"
+dasel put -f ~/.newchain/config/config.toml -v "/home/ubuntu/cert/fullchain.pem" ".rpc.tls_cert_file"
+dasel put -f ~/.newchain/config/config.toml -v "/home/ubuntu/cert/privkey.pem" ".rpc.tls_key_file"
+dasel put -t bool -f ~/.newchain/config/app.toml -v true ".api.enable"
+dasel put -f ~/.newchain/config/app.toml -v "tcp://localhost:1317" ".api.address"
+dasel put -f ~/.newchain/config/app.toml -v "1stake" ".minimum-gas-prices"
+
+# generate validator address and store address and mnemonic in ~/.newchain/config/keys-backup
+yes | ~/upload/newchaind keys delete ${MONIKER} --keyring-backend test 2>/dev/null || :
+MNEMONIC=$(~/upload/newchaind keys mnemonic --keyring-backend test)
+echo $MNEMONIC | ~/upload/newchaind keys add ${MONIKER} --keyring-backend test --recover
+ADDRESS=$(~/upload/newchaind keys show ${MONIKER} -a --keyring-backend test)
+mkdir -p ~/.newchain/config/keys-backup
+echo ${MONIKER}-${NODE_INDEX}-${ADDRESS} > ~/.newchain/config/keys-backup/validator-address-${MONIKER}-${NODE_INDEX}.txt
+echo ${MNEMONIC} > ~/.newchain/config/keys-backup/validator-mnemonic-${MONIKER}-${NODE_INDEX}.txt

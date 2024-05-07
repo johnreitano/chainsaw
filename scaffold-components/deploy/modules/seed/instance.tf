@@ -36,7 +36,8 @@ resource "aws_route53_record" "seed_api_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  name    = "${var.domain_prefix}seed-${count.index}-api"
+  # name    = "${var.domain_prefix}seed-${count.index}-api"
+  name    = "seed-${count.index}-api"
   type    = "A"
   ttl     = 600
   records = [aws_eip.seed[count.index].public_ip]
@@ -47,7 +48,8 @@ resource "aws_route53_record" "seed_rpc_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  name    = "${var.domain_prefix}seed-${count.index}-rpc"
+  # name    = "${var.domain_prefix}seed-${count.index}-rpc"
+  name    = "seed-${count.index}-rpc"
   type    = "A"
   ttl     = 600
   records = [aws_eip.seed[count.index].public_ip]
@@ -61,7 +63,7 @@ resource "null_resource" "configure_client" {
   provisioner "local-exec" {
     command = <<-EOF
       if [[ "${var.genesis_file_available}" != "true" ]]; then echo "error: no genesis file avalable"; exit 1; fi
-      until scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json ./upload/genesis.json; do echo "waiting for connection"; sleep 1; done
+      until scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key_path} ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json ./upload/genesis.json; do echo "waiting for connection"; sleep 1; done
     EOF
   }
 
@@ -104,8 +106,10 @@ resource "null_resource" "configure_client" {
       "echo configuring seed node...",
       "chmod +x upload/*.sh ./upload/newchaind",
       "~/upload/configure-generic-client.sh",
-      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}seed-${count.index}-rpc.${var.dns_zone_name}",
-      "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}seed-${count.index}-api.${var.dns_zone_name} 1317",
+      # "~/upload/install-generic-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}seed-${count.index}-rpc.${var.dns_zone_name}",
+      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} seed-${count.index}-rpc.${var.dns_zone_name}",
+      # "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}seed-${count.index}-api.${var.dns_zone_name} 1317",
+      "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} seed-${count.index}-api.${var.dns_zone_name} 1317",
       "~/upload/configure-seed.sh ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'"
     ]
     connection {

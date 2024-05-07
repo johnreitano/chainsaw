@@ -34,7 +34,8 @@ resource "aws_route53_record" "validator_api_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  name    = "${var.domain_prefix}validator-${count.index}-api"
+  # name    = "${var.domain_prefix}validator-${count.index}-api"
+  name    = "validator-${count.index}-api"
   type    = "A"
   ttl     = 600
   records = [aws_eip.validator[count.index].public_ip]
@@ -45,7 +46,8 @@ resource "aws_route53_record" "validator_rpc_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  name    = "${var.domain_prefix}validator-${count.index}-rpc"
+  # name    = "${var.domain_prefix}validator-${count.index}-rpc"
+  name    = "validator-${count.index}-rpc"
   type    = "A"
   ttl     = 600
   records = [aws_eip.validator[count.index].public_ip]
@@ -95,11 +97,9 @@ resource "null_resource" "configure_client" {
       "chmod +x ~/upload/*.sh ~/upload/newchaind",
       "sudo systemctl stop newchain.service || :",
       "~/upload/configure-generic-client.sh",
-      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}validator-${count.index}-rpc.${var.dns_zone_name}",
-      "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}validator-${count.index}-api.${var.dns_zone_name} 1317",
+      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} validator-${count.index}-rpc.${var.dns_zone_name}",
+      "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} validator-${count.index}-api.${var.dns_zone_name} 1317",
       "~/upload/configure-validator.sh ${count.index} '${join(",", [for node in aws_eip.validator : node.public_ip])}'",
-      "echo generating genesis transaction...",
-      "~/upload/generate-gentx.sh ${count.index}",
     ]
     connection {
       type        = "ssh"
@@ -110,54 +110,14 @@ resource "null_resource" "configure_client" {
   }
   triggers = {
     instance_created_or_deleted = join(",", [for r in aws_instance.validator : r.id])
-    uploaded_files_changed      = join(",", [for f in setunion(fileset(".", "upload/node_key_*.json"), fileset(".", "upload/*.sh"), fileset(".", "modules/validator/upload/*.sh")) : filesha256(f)])
-
+    uploaded_files_changed      = join(",", [for f in setunion(fileset(".", "upload/node_key_*.json"), fileset(".", "upload/newchaind"), fileset(".", "upload/*.sh"), fileset(".", "modules/validator/upload/*.sh")) : filesha256(f)])
   }
 }
 
-
-resource "null_resource" "generate_genesis_file" {
-  # depends_on = [null_resource.copy_gentx_to_primary_validator]
+resource "null_resource" "generate-and-install-genesis-file" {
   count = var.num_instances > 0 ? 1 : 0
   provisioner "local-exec" {
-    command = <<-EOF
-      if [[ "${var.num_instances}" < "2" ]]; then exit 0; fi
-      rm -rf /tmp/newchain/validator/gentx
-      mkdir -p /tmp/newchain/validator/gentx
-      secondary_ips='${join(" ", slice([for node in aws_eip.validator : node.public_ip], 1, var.num_instances))}'
-      for secondary_ip in $secondary_ips; do
-        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@$secondary_ip:.newchain/config/gentx/\* /tmp/newchain/validator/gentx/
-      done
-      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/validator/gentx/* ubuntu@${aws_eip.validator[0].public_ip}:.newchain/config/gentx/
-    EOF
-  }
-
-  // generate genesis file on primary validator
-  provisioner "remote-exec" {
-    inline = [
-      "echo generating genesis file on primary validator node",
-      "upload/generate-genesis-file.sh",
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file(var.ssh_private_key_path)
-      host        = aws_eip.validator[0].public_ip
-    }
-  }
-
-  // download genesis file and copy to secondary validators
-  provisioner "local-exec" {
-    command = <<-EOF
-      if [[ "${var.num_instances}" < "2" ]]; then exit 0; fi
-      rm -rf /tmp/newchain/validator/genesis
-      mkdir -p /tmp/newchain/validator/genesis
-      until scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.newchain/config/genesis.json /tmp/newchain/validator/genesis/genesis.json; do echo "waiting for connection"; sleep 1; done
-      secondary_ips='${join(" ", slice([for node in aws_eip.validator : node.public_ip], 1, var.num_instances))}'
-      for secondary_ip in $secondary_ips; do
-        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/newchain/validator/genesis/genesis.json ubuntu@$secondary_ip:.newchain/config/genesis.json      
-      done
-    EOF
+    command = "./modules/validator/upload/generate-and-install-genesis-file.sh '${join(",", [for node in aws_eip.validator : node.public_ip])}'"
   }
 
   triggers = {
@@ -166,7 +126,6 @@ resource "null_resource" "generate_genesis_file" {
 }
 
 resource "null_resource" "start_validator" {
-  # depends_on = [null_resource.generate_genesis_file]
   count = var.num_instances
 
   provisioner "remote-exec" {
@@ -185,7 +144,7 @@ resource "null_resource" "start_validator" {
     }
   }
   triggers = {
-    genesis_file_generated = join(",", [for r in null_resource.generate_genesis_file : r.id])
+    genesis_file_generated = join(",", [for r in null_resource.generate-and-install-genesis-file : r.id])
   }
 }
 

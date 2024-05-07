@@ -6,22 +6,45 @@
 brew install jq terraform awscli
 ```
 
-## Step 2: Generate name servers
+## Step 2: Set up name servers
 
 From the project root dir:
 
 ```
-terraform -chdir=deploy apply -var="dns_zone_name=mysubdomain.mydomain.com" -var="tls_certificate_email=myemail@example.com"
+deploy/create-zone.sh testnet yourchain.yourdomain.com youremail@example.com
 ```
 
-This command will output a list of name servers. At the host for the subdomain (eg, `mysubdomain`), add one NS record for each name server in the output. Wait for the NS records to be deployed (this can take anywhere from 15 minutes to 8 hours).
+This command will output a list of name servers. At the host for the subdomain (eg, `yourchain.yourdomain.com`), add one NS record for each name server in the output. Wait for the NS records to be propagated (this can take anywhere from 15 minutes to 8 hours). You can confirm the name server records are propagated by running the command 
+```
+nslookup -type=ns testnet.yourchain.yourdomain.com
+```
+At first you will see a failure message such as `** server can't find testnet.yourchain.yourdomain.com: NXDOMAIN`. If you see a response similar to the following, then the name servers are propagated:
+```
+Server:         10.136.126.106
+Address:        10.136.126.106#53
+
+Non-authoritative answer:
+testnet.yourchain.yourdomain.com    nameserver = ns-1306.awsdns-35.org.
+testnet.yourchain.yourdomain.com    nameserver = ns-143.awsdns-17.com.
+testnet.yourchain.yourdomain.com    nameserver = ns-800.awsdns-36.net.
+testnet.yourchain.yourdomain.com    nameserver = ns-1694.awsdns-19.co.uk.
+
+Authoritative answers can be found from:
+ns-143.awsdns-17.com    internet address = 205.251.192.143
+ns-800.awsdns-36.net    internet address = 205.251.195.32
+ns-1306.awsdns-35.org   internet address = 205.251.197.26
+ns-1694.awsdns-19.co.uk internet address = 205.251.198.158
+ns-143.awsdns-17.com    has AAAA address 2600:9000:5300:8f00::1
+ns-800.awsdns-36.net    has AAAA address 2600:9000:5303:2000::1
+ns-1306.awsdns-35.org   has AAAA address 2600:9000:5305:1a00::1
+```
 
 ## Step 3: Deploy your chain
 
 From the project root dir:
 
 ```
-terraform -chdir=deploy apply -var="dns_zone_name=mysubdomain.mydomain.com" -var="tls_certificate_email=myemail@example.com" -var="num_validator_instances=3" -var="num_seed_instances=1" -var="create_explorer=true"
+deploy/create-servers.sh testnet yourchain.yourdomain.com youremail@example.com
 ```
 
 #### Step 4: Behold your testnet
@@ -29,7 +52,7 @@ terraform -chdir=deploy apply -var="dns_zone_name=mysubdomain.mydomain.com" -var
 Wait 2-3 minutes, the visit your new api:
 
 ```
-open https://validator-0-api.mysubdomain.mydomain.com
+open https://validator-0-api.yourchain.yourdomain.com
 ```
 
 See your servers in AWS:
@@ -72,5 +95,13 @@ deploy/ssh validator 0 date
 From your project root dir:
 
 ```
-terraform chdir=deploy destroy
+deploy/destroy-servers.sh testnet
+```
+
+## Destroying your zone and any remaining servers
+
+There may be a small monthly charge from some AWS resources such as hosting your dns zone or other items. To remove all of these resources, cd to project root dir and run:
+
+```
+deploy/destroy-all.sh testnet
 ```

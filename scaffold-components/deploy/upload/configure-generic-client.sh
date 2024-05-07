@@ -8,15 +8,17 @@ set -e
 #     sleep 1
 # done
 
-sudo apt update -y
+sudo apt update -y && sudo apt install -y snapd
 sudo snap install core
 sudo snap refresh core
+sudo snap install snapd
+sudo snap refresh snapd
 
 if [[ -z "$(which make)" ]]; then
     sudo apt install -y make
 fi
 if [[ -z "$(which go)" ]]; then
-    sudo snap install go --classic
+    sudo snap install --classic --channel=1.22/stable 
 fi
 if [[ -z "$(which dasel)" ]]; then
     sudo wget -qO /usr/local/bin/dasel https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64

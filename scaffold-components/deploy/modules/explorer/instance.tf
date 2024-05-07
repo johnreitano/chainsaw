@@ -34,7 +34,7 @@ resource "aws_route53_record" "explorer_a_record" {
   count      = var.create_explorer ? 1 : 0
 
   zone_id = var.dns_zone_id
-  name    = "${var.domain_prefix}explorer"
+  name    = "explorer"
   type    = "A"
   ttl     = 600
   records = [aws_eip.explorer[count.index].public_ip]
@@ -83,8 +83,8 @@ resource "null_resource" "configure_client" {
       "echo configuring explorer node...",
       "chmod +x ~/upload/*.sh",
       "~/upload/configure-generic-client.sh",
-      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} ${var.domain_prefix}explorer.${var.dns_zone_name}",
-      "~/upload/configure-explorer.sh ${count.index} ${var.domain_prefix}explorer.${var.dns_zone_name}"
+      "~/upload/install-generic-cert.sh ${var.tls_certificate_email} explorer.${var.dns_zone_name}",
+      "~/upload/configure-explorer.sh ${count.index} explorer.${var.dns_zone_name}"
     ]
     connection {
       type        = "ssh"
