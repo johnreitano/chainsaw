@@ -1,10 +1,10 @@
-variable "region" {
+variable "aws_region" {
   description = "AWS region"
   default     = "us-west-2"
   type        = string
 }
 
-variable "profile" {
+variable "aws_profile" {
   description = "AWS profile"
   default     = "default"
   type        = string
@@ -77,4 +77,12 @@ variable "create_explorer" {
 
 variable "dns_zone_parent" {
   description = "parent of dns zone for testnet and mainnet servers, eg: mychain.example.com"
+}
+
+variable "validator_keys_passphrase" {
+  description = "passphrase for validator keys"
+}
+
+variable "token_name" {
+  description = "name of the blockhain's token, eg MYTOKEN"
 }

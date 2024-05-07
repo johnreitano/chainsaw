@@ -17,18 +17,20 @@ resource "null_resource" "build_linux_executable" {
 module "validator" {
   depends_on = [null_resource.build_linux_executable]
 
-  source                = "./modules/validator"
-  env                   = var.env
-  project               = var.project
-  ssh_private_key_path  = var.ssh_private_key_path
-  tls_certificate_email = var.tls_certificate_email
-  vpc_id                = aws_vpc.vpc.id
-  igw_id                = aws_internet_gateway.igw.id
-  subnet_cidr           = var.validator_subnet_cidr
-  ami                   = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
-  dns_zone_id           = aws_route53_zone.default.zone_id
-  dns_zone_name         = aws_route53_zone.default.name
-  num_instances         = var.num_validator_instances
+  source                    = "./modules/validator"
+  env                       = var.env
+  project                   = var.project
+  ssh_private_key_path      = var.ssh_private_key_path
+  tls_certificate_email     = var.tls_certificate_email
+  vpc_id                    = aws_vpc.vpc.id
+  igw_id                    = aws_internet_gateway.igw.id
+  subnet_cidr               = var.validator_subnet_cidr
+  ami                       = "ami-0ee8244746ec5d6d4" # See https://us-west-2.console.aws.amazon.com/ec2/v2/home?region=us-west-2#AMICatalog: - alternate: ami = data.aws_ami.latest-ubuntu.id
+  dns_zone_id               = aws_route53_zone.default.zone_id
+  dns_zone_name             = aws_route53_zone.default.name
+  num_instances             = var.num_validator_instances
+  validator_keys_passphrase = var.validator_keys_passphrase
+  token_name                = var.token_name
 }
 
 
@@ -47,6 +49,7 @@ module "seed" {
   dns_zone_id            = aws_route53_zone.default.zone_id
   dns_zone_name          = aws_route53_zone.default.name
   num_instances          = var.num_seed_instances
+  token_name                = var.token_name
 }
 
 module "explorer" {

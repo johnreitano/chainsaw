@@ -13,8 +13,8 @@ if [[ ! $ENV =~ ^mainnet|testnet$  ]]; then
   exit 1
 fi
 
-if ! test -f "${SCRIPT_DIR}/dns.tfvars"; then
-  echo "File dns.tfvars not found - cannot destroy servers"
+if ! test -f "${SCRIPT_DIR}/persistent.tfvars"; then
+  echo "File persistent.tfvars not found - cannot destroy servers"
   exit 1
 fi
 
@@ -24,4 +24,4 @@ if [[ ! "$(terraform workspace list)" =~ "${ENV}" ]]; then
 fi
 
 terraform workspace select ${ENV}
-terraform -chdir=deploy apply -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="dns.tfvars"
+terraform -chdir=deploy apply -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="persistent.tfvars"

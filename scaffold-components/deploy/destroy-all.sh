@@ -17,6 +17,6 @@ if [[ ! "$(terraform workspace list)" =~ "${ENV}" ]]; then
 fi
 
 terraform workspace select ${ENV}
-terraform -chdir=deploy destroy  -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="dns.tfvars"
+terraform -chdir=deploy destroy  -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="persistent.tfvars"
 terraform workspace select default
 terraform workspace delete ${ENV}

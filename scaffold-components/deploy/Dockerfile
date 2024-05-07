@@ -1,5 +1,5 @@
 FROM ubuntu:22.04 AS build-stage
-WORKDIR /communio
+WORKDIR /newchain
 RUN apt-get update -y
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ca-certificates git make wget build-essential
 

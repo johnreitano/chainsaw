@@ -52,3 +52,7 @@ variable "dns_zone_id" {
 variable "dns_zone_name" {
   description = "fully qualified domain of route53 dns zone"
 }
+
+variable "token_name" {
+  description = "name of the blockhain's token, eg MYTOKEN"
+}

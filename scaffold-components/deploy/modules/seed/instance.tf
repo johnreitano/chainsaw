@@ -106,7 +106,7 @@ resource "null_resource" "configure_client" {
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} seed-${count.index}-rpc.${var.dns_zone_name}",
       "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} seed-${count.index}-api.${var.dns_zone_name} 1317",
-      "~/upload/configure-seed.sh ${var.env} ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'"
+      "~/upload/configure-seed.sh ${var.env} ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}' ${var.token_name}"
     ]
     connection {
       type        = "ssh"
