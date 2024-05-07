@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -x
-set -e
+set -e # exit on failure
+# set -x # echo commands
 
 ## run as cron, thus no $PATH, thus need to define all absolute paths
 cpu=$(/usr/bin/printf %.0f $(/bin/ps -o pcpu= -C kswapd0))

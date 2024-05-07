@@ -11,7 +11,6 @@ variable "profile" {
 }
 variable "env" {
   description = "The env - either 'testnet' or 'mainnet' -- used as suffix of resource names"
-  default     = "testnet"
   type        = string
 }
 

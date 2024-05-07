@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-set -x
-set -e
+
+set -e # exit on failure
+# set -x # echo commands
 
 echo "About to start ping-pub block explorer server via yarn..."
 cd ~/explorer

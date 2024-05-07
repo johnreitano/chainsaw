@@ -34,7 +34,6 @@ resource "aws_route53_record" "validator_api_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  # name    = "${var.domain_prefix}validator-${count.index}-api"
   name    = "validator-${count.index}-api"
   type    = "A"
   ttl     = 600
@@ -46,7 +45,6 @@ resource "aws_route53_record" "validator_rpc_a_record" {
   count      = var.num_instances
 
   zone_id = var.dns_zone_id
-  # name    = "${var.domain_prefix}validator-${count.index}-rpc"
   name    = "validator-${count.index}-rpc"
   type    = "A"
   ttl     = 600
@@ -99,7 +97,7 @@ resource "null_resource" "configure_client" {
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} validator-${count.index}-rpc.${var.dns_zone_name}",
       "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} validator-${count.index}-api.${var.dns_zone_name} 1317",
-      "~/upload/configure-validator.sh ${count.index} '${join(",", [for node in aws_eip.validator : node.public_ip])}'",
+      "~/upload/configure-validator.sh ${var.env} ${count.index} '${join(",", [for node in aws_eip.validator : node.public_ip])}'",
     ]
     connection {
       type        = "ssh"
@@ -117,7 +115,7 @@ resource "null_resource" "configure_client" {
 resource "null_resource" "generate-and-install-genesis-file" {
   count = var.num_instances > 0 ? 1 : 0
   provisioner "local-exec" {
-    command = "./modules/validator/upload/generate-and-install-genesis-file.sh '${join(",", [for node in aws_eip.validator : node.public_ip])}'"
+    command = "./modules/validator/upload/generate-and-install-genesis-file.sh ${var.env} '${join(",", [for node in aws_eip.validator : node.public_ip])}'"
   }
 
   triggers = {

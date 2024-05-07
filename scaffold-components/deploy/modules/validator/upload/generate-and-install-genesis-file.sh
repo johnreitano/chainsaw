@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -x
-set -e
+set -e # exit on failure
+# set -x # echo commands
 
-VALIDATOR_IPS_STR=$1
+ENV=$1
+VALIDATOR_IPS_STR=$2
 VALIDATOR_IPS=(${VALIDATOR_IPS_STR//,/ })
 
 get_moniker() {
@@ -27,11 +28,16 @@ get_moniker() {
 # loop over all validators 
 PRIMARY_VALIDATOR_IP=${VALIDATOR_IPS[0]}
 NUM_VALIDATORS=${#VALIDATOR_IPS[@]}
+if [[ "${ENV}" = "mainnet" ]]; then
+    KEYRING_BACKEND="test" # TODO: change to "file"
+else
+    KEYRING_BACKEND="test"
+fi
 for NODE_INDEX in $(seq 0 $((${NUM_VALIDATORS}-1))); do
     # retrieve address and key name from validator
     VALIDATOR_IP=${VALIDATOR_IPS[${NODE_INDEX}]}
     VALIDATOR_KEY_NAME=$(get_moniker ${NODE_INDEX})
-    VALIDATOR_ADDRESS=$(ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${VALIDATOR_IP} \~/upload/newchaind keys show -a ${VALIDATOR_KEY_NAME} --keyring-backend test)
+    VALIDATOR_ADDRESS=$(ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${VALIDATOR_IP} \~/upload/newchaind keys show -a ${VALIDATOR_KEY_NAME} --keyring-backend ${KEYRING_BACKEND})
 
     # create genesis account for this validator on primary validator
     ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${PRIMARY_VALIDATOR_IP} \~/upload/newchaind genesis add-genesis-account ${VALIDATOR_ADDRESS} 100000000000stake
@@ -52,7 +58,7 @@ for NODE_INDEX in $(seq 0 $((${NUM_VALIDATORS}-1))); do
     
     # generate a gentx (signed genesis transaction)
     ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${VALIDATOR_IP} rm -rf \~/.newchain/config/gentx/\*
-    ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${VALIDATOR_IP} \~/upload/newchaind genesis gentx --keyring-backend test --chain-id=newchain-test-1 --moniker=${VALIDATOR_KEY_NAME} ${VALIDATOR_KEY_NAME} 100000000stake
+    ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${VALIDATOR_IP} \~/upload/newchaind genesis gentx --keyring-backend ${KEYRING_BACKEND} --chain-id=newchain-${ENV}-1 --moniker=${VALIDATOR_KEY_NAME} ${VALIDATOR_KEY_NAME} 100000000stake
     
     if [[ "${NODE_INDEX}" != "0" ]]; then
         # copy gentx file from secondary to primary validator

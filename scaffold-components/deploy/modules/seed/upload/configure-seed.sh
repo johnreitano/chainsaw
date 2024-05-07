@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -x
-set -e
+set -e # exit on failure
+# set -x # echo commands
 
-NODE_INDEX=$1
+ENV=$1
+NODE_INDEX=$2
 if [[ "${NODE_INDEX}" = "0" ]]; then
     MONIKER="black"
 elif [[ "${NODE_INDEX}" = "1" ]]; then
@@ -12,11 +13,11 @@ else
     MONIKER="gray"
 fi
 
-SEED_IPS_STR=$2
+SEED_IPS_STR=$3
 SEED_IPS=(${SEED_IPS_STR//,/ })
 SEED_P2P_KEYS=(9038832904699724f0b62188e088a86acb629fad de77ff9811178b9b14507dae3cde3ffa0df68130 192fd886732afb466690f1e098ddd62cfe7a63e4)
 
-VALIDATOR_IPS_STR=$3
+VALIDATOR_IPS_STR=$4
 VALIDATOR_IPS=(${VALIDATOR_IPS_STR//,/ })
 VALIDATOR_P2P_KEYS=(7b23bfaa390d84699812fb709957a9222a7eb519 547217a2c7449d7c6f779e07b011aa27e61673fc 7aaf162f245915711940148fe5d0206e2b456457)
 
@@ -30,7 +31,7 @@ for i in $(seq 0 $N_MINUS_1); do
 done
 
 rm -rf ~/.newchain
-~/upload/newchaind init $MONIKER --chain-id newchain-test-1
+~/upload/newchaind init $MONIKER --chain-id newchain-${ENV}-1
 cp ~/upload/node_key_seed_${NODE_INDEX}.json ~/.newchain/config/node_key.json
 cp ~/upload/genesis.json ~/.newchain/config/
 

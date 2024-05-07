@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -x
-set -e
+set -e # exit on failure
+# set -x # echo commands
 
 # # sleep until instance is ready
 # until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
@@ -18,14 +18,14 @@ if [[ -z "$(which make)" ]]; then
     sudo apt install -y make
 fi
 if [[ -z "$(which go)" ]]; then
-    sudo snap install --classic --channel=1.22/stable 
+    sudo snap install --classic --channel=1.22/stable go
 fi
 if [[ -z "$(which dasel)" ]]; then
     sudo wget -qO /usr/local/bin/dasel https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64
     sudo chmod a+x /usr/local/bin/dasel
 fi
 if [[ -z "$(which jq)" ]]; then
-    sudo apt install -y jq
+    sudo apt update -y && sudo apt install -y jq
 fi
 if [[ -z "$(which ignite)" ]]; then
     sudo curl https://get.ignite.com/cli! | sudo bash

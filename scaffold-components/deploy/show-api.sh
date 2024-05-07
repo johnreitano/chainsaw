@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# set -x
-set -e
+
+set -e # exit on failure
+# set -x # echo commands
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 NODE_TYPE=$1

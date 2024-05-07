@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-set -x
-set -e
+
+set -e # exit on failure
+# set -x # echo commands
 
 NODE_INDEX=$1
 

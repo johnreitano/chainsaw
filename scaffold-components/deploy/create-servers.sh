@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# set -x
-set -e
+
+set -e # exit on failure
+# set -x # echo commands
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 cd ${SCRIPT_DIR}/..
@@ -19,4 +20,10 @@ if ! test -f "${SCRIPT_DIR}/dns.tfvars"; then
   exit 1
 fi
 
+if [[ ! "$(terraform workspace list)" =~ "${ENV}" ]]; then
+  echo "terraform workspace ${ENV} does not exist - run create-zone.sh before running this script."
+  exit 1
+fi
+
+terraform workspace select ${ENV}
 terraform -chdir=deploy apply -auto-approve -var="env=${ENV}" -var="num_validator_instances=$NUM_VALIDATORS" -var="num_seed_instances=${NUM_SEEDS}" -var="create_explorer=true" -var-file="dns.tfvars"

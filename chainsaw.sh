@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e # exit on failure
-set -x # echo commands
+# set -x # echo commands
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 

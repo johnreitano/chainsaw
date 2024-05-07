@@ -3,7 +3,8 @@
 set -x
 set -e
 
-NODE_INDEX=$1
+ENV=$1
+NODE_INDEX=$2
 if [[ "${NODE_INDEX}" = "0" ]]; then
     MONIKER="red"
 elif [[ "${NODE_INDEX}" = "1" ]]; then
@@ -12,7 +13,7 @@ else
     MONIKER="green"
 fi
 
-VALIDATOR_IPS_STR=$2
+VALIDATOR_IPS_STR=$3
 VALIDATOR_IPS=(${VALIDATOR_IPS_STR//,/ })
 VALIDATOR_P2P_KEYS=(7b23bfaa390d84699812fb709957a9222a7eb519 547217a2c7449d7c6f779e07b011aa27e61673fc 7aaf162f245915711940148fe5d0206e2b456457)
 
@@ -28,7 +29,7 @@ for i in $(seq 0 $N_MINUS_1); do
 done
 
 rm -rf ~/.newchain
-~/upload/newchaind init $MONIKER --chain-id newchain-test-1
+~/upload/newchaind init $MONIKER --chain-id newchain-${ENV}-1
 cp upload/node_key_validator_${NODE_INDEX}.json ~/.newchain/config/node_key.json
 
 cat >/tmp/newchain.service <<-EOF
@@ -61,10 +62,15 @@ dasel put -f ~/.newchain/config/app.toml -v "tcp://localhost:1317" ".api.address
 dasel put -f ~/.newchain/config/app.toml -v "1stake" ".minimum-gas-prices"
 
 # generate validator address and store address and mnemonic in ~/.newchain/config/keys-backup
-yes | ~/upload/newchaind keys delete ${MONIKER} --keyring-backend test 2>/dev/null || :
-MNEMONIC=$(~/upload/newchaind keys mnemonic --keyring-backend test)
-echo $MNEMONIC | ~/upload/newchaind keys add ${MONIKER} --keyring-backend test --recover
-ADDRESS=$(~/upload/newchaind keys show ${MONIKER} -a --keyring-backend test)
+if [[ "${ENV}" = "mainnet" ]]; then
+    KEYRING_BACKEND="test" # TODO: change to "file"
+else
+    KEYRING_BACKEND="test"
+fi
+yes | ~/upload/newchaind keys delete ${MONIKER} --keyring-backend ${KEYRING_BACKEND} 2>/dev/null || :
+MNEMONIC=$(~/upload/newchaind keys mnemonic --keyring-backend ${KEYRING_BACKEND})
+echo $MNEMONIC | ~/upload/newchaind keys add ${MONIKER} --keyring-backend ${KEYRING_BACKEND} --recover
+ADDRESS=$(~/upload/newchaind keys show ${MONIKER} -a --keyring-backend ${KEYRING_BACKEND})
 mkdir -p ~/.newchain/config/keys-backup
-echo ${MONIKER}-${NODE_INDEX}-${ADDRESS} > ~/.newchain/config/keys-backup/validator-address-${MONIKER}-${NODE_INDEX}.txt
-echo ${MNEMONIC} > ~/.newchain/config/keys-backup/validator-mnemonic-${MONIKER}-${NODE_INDEX}.txt
+echo ${MONIKER}-${ADDRESS} > ~/.newchain/config/keys-backup/validator-address-${MONIKER}.txt
+echo ${MNEMONIC} > ~/.newchain/config/keys-backup/validator-mnemonic-${MONIKER}.txt
