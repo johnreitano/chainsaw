@@ -3,7 +3,7 @@ resource "aws_instance" "explorer" {
   ami                         = "ami-0d70546e43a941d70"
   instance_type               = "t2.medium"
   subnet_id                   = aws_subnet.explorer.id
-  key_name                    = "newchain-key"
+  key_name                    = "communio-key.${var.env}"
   vpc_security_group_ids      = [aws_security_group.explorer.id]
   associate_public_ip_address = false
 
@@ -84,7 +84,7 @@ resource "null_resource" "configure_client" {
       "chmod +x ~/upload/*.sh",
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} explorer.${var.dns_zone_name}",
-      "~/upload/configure-explorer.sh ${count.index} explorer.${var.dns_zone_name}"
+      "~/upload/configure-explorer.sh ${count.index} ${var.dns_zone_name}"
     ]
     connection {
       type        = "ssh"

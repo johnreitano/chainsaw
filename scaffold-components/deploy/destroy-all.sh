@@ -11,12 +11,12 @@ if [[ ! $ENV =~ ^mainnet|testnet$  ]]; then
   echo "Usage: destroy-all <mainnet|testnet>"
   exit 1
 fi
-if [[ ! "$(terraform workspace list)" =~ "${ENV}" ]]; then
-  echo "terraform workspace ${ENV} does not exist - run create-zone.sh before running this script."
+if [[ ! "$(terraform -chdir=deploy workspace list)" =~ "${ENV}" ]]; then
+  echo "terraform -chdir=deploy workspace ${ENV} does not exist - run create-zone.sh before running this script."
   exit 1
 fi
 
-terraform workspace select ${ENV}
-terraform -chdir=deploy destroy  -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="persistent.tfvars"
-terraform workspace select default
-terraform workspace delete ${ENV}
+terraform -chdir=deploy workspace select ${ENV}
+terraform -chdir=deploy destroy  -var="env=${ENV}" -var="num_validator_instances=0" -var="num_seed_instances=0" -var="create_explorer=false" -var-file="persistent.${ENV}.tfvars"
+terraform -chdir=deploy workspace select default
+terraform -chdir=deploy workspace delete ${ENV}

@@ -6,7 +6,6 @@ set -e # exit on failure
 EMAIL=$1
 DOMAIN=$2
 
-echo sudo certbot certonly --standalone -d ${DOMAIN} -n --agree-tos --email ${EMAIL}
 sudo certbot certonly --standalone -d ${DOMAIN} -n --agree-tos --email ${EMAIL}
 mkdir ~/cert
 sudo cp /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ~/cert/

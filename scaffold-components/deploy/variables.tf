@@ -6,7 +6,6 @@ variable "aws_region" {
 
 variable "aws_profile" {
   description = "AWS profile"
-  default     = "default"
   type        = string
 }
 variable "env" {
@@ -16,7 +15,7 @@ variable "env" {
 
 variable "project" {
   description = "The name of this project -- used as prefix of resource names"
-  default     = "newchain"
+  default     = "communio"
   type        = string
 }
 

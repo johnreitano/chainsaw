@@ -5,7 +5,7 @@ resource "aws_instance" "seed" {
   ami                         = var.ami
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.seed.id
-  key_name                    = "newchain-key"
+  key_name                    = "communio-key.${var.env}"
   vpc_security_group_ids      = [aws_security_group.seed.id]
   associate_public_ip_address = false
 
@@ -61,7 +61,7 @@ resource "null_resource" "configure_client" {
   provisioner "local-exec" {
     command = <<-EOF
       if [[ "${var.genesis_file_available}" != "true" ]]; then echo "error: no genesis file avalable"; exit 1; fi
-      until scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key_path} ubuntu@${var.validator_ips[0]}:.newchain/config/genesis.json ./upload/genesis.json; do echo "waiting for connection"; sleep 1; done
+      until scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key_path} ubuntu@${var.validator_ips[0]}:.communio/config/genesis.json ./upload/genesis.json; do echo "waiting for connection"; sleep 1; done
     EOF
   }
 
@@ -102,7 +102,7 @@ resource "null_resource" "configure_client" {
   provisioner "remote-exec" {
     inline = [
       "echo configuring seed node...",
-      "chmod +x upload/*.sh ./upload/newchaind",
+      "chmod +x upload/*.sh ./upload/communiod",
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} seed-${count.index}-rpc.${var.dns_zone_name}",
       "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} seed-${count.index}-api.${var.dns_zone_name} 1317",
@@ -130,8 +130,8 @@ resource "null_resource" "start_seed" {
   provisioner "remote-exec" {
     inline = [
       "echo starting seed node...",
-      "sudo systemctl enable newchain.service",
-      "sudo systemctl start newchain.service",
+      "sudo systemctl enable communio.service",
+      "sudo systemctl start communio.service",
       "echo done starting seed node"
     ]
     connection {

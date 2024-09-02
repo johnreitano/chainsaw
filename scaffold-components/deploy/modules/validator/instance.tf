@@ -3,7 +3,7 @@ resource "aws_instance" "validator" {
   ami                         = var.ami
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.validator.id
-  key_name                    = "newchain-key"
+  key_name                    = "communio-key.${var.env}"
   vpc_security_group_ids      = [aws_security_group.validator.id]
   associate_public_ip_address = false
 
@@ -92,8 +92,8 @@ resource "null_resource" "configure_client" {
   provisioner "remote-exec" {
     inline = [
       "echo configuring validator node...",
-      "chmod +x ~/upload/*.sh ~/upload/newchaind",
-      "sudo systemctl stop newchain.service || :",
+      "chmod +x ~/upload/*.sh ~/upload/communiod",
+      "sudo systemctl stop communio.service || :",
       "~/upload/configure-generic-client.sh",
       "~/upload/install-generic-cert.sh ${var.tls_certificate_email} validator-${count.index}-rpc.${var.dns_zone_name}",
       "~/upload/install-nginx-cert.sh ${var.tls_certificate_email} validator-${count.index}-api.${var.dns_zone_name} 1317",
@@ -108,7 +108,7 @@ resource "null_resource" "configure_client" {
   }
   triggers = {
     instance_created_or_deleted = join(",", [for r in aws_instance.validator : r.id])
-    uploaded_files_changed      = join(",", [for f in setunion(fileset(".", "upload/node_key_*.json"), fileset(".", "upload/newchaind"), fileset(".", "upload/*.sh"), fileset(".", "modules/validator/upload/*.sh")) : filesha256(f)])
+    uploaded_files_changed      = join(",", [for f in setunion(fileset(".", "upload/node_key_*.json"), fileset(".", "upload/communiod"), fileset(".", "upload/*.sh"), fileset(".", "modules/validator/upload/*.sh")) : filesha256(f)])
   }
 }
 
@@ -130,10 +130,10 @@ resource "null_resource" "start_validator" {
   provisioner "remote-exec" {
     inline = [
       "echo starting validator node ${count.index} via systemctl...",
-      "sudo systemctl restart newchain.service",
+      "sudo systemctl restart communio.service",
       "sleep 1",
-      "sudo systemctl status -l newchain.service --no-pager",
-      "sudo systemctl enable newchain.service",
+      "sudo systemctl status -l communio.service --no-pager",
+      "sudo systemctl enable communio.service",
     ]
     connection {
       type        = "ssh"
