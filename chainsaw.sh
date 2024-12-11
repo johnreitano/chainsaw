@@ -20,6 +20,7 @@ ignite scaffold chain github.com/${GITHUB_ORG}/$CHAIN_NAME --address-prefix $CHA
 cd $CHAIN_NAME
 cp -r ${SCRIPT_DIR}/scaffold-components/* .
 
+find . -type f -exec perl -i -pe"s/newgithubuser/$GITHUB_ORG/g" {} +
 find . -type f -exec perl -i -pe"s/newchain/$CHAIN_NAME/g" {} +
 find . -type f -exec perl -i -pe"s/Newchain/$CHAIN_NAME_TITLE/g" {} +
 find . -type f -exec perl -i -pe"s/NEWCHAIN/$CHAIN_NAME_UPPER/g" {} +
